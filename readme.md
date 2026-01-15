@@ -3,9 +3,9 @@
 
 ## Información del Estudiante
 
-- **Nombre:** [Tu nombre completo aquí]
-- **Carrera:** [Tu carrera]
-- **Fecha de inicio:** [Fecha]
+- **Nombre:** Guillermo Zurita
+- **Carrera:** Ingenieria en Software
+- **Fecha de inicio:** 15 de enero de 2025
 
 ---
 
