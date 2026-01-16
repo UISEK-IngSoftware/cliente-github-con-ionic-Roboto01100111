@@ -1,8 +1,24 @@
-import { IonContent, IonHeader, IonPage, IonList,   IonTitle, IonToolbar } from '@ionic/react';
+import React from 'react';
+import { IonContent, IonHeader, IonPage, IonList, IonTitle, IonToolbar, useIonViewDidEnter } from '@ionic/react';
 import RepoItem from '../components/RepoItem';
 import './Tab1.css';
+import { RepositoryItem } from '../interfaces/RepositoryItem';
+import { fetchRepositories } from '../services/GithubService';
 
 const Tab1: React.FC = () => {
+
+  const [repos, setRepos] = React.useState<RepositoryItem[]>([]);
+
+  const loadRepos = async () => {
+    const reposData = await fetchRepositories();
+    setRepos(reposData);
+  };
+
+  useIonViewDidEnter(() => {
+    console.log('***** Cargando repositorios *****');
+    loadRepos();
+  });
+
   return (
     <IonPage>
       <IonHeader>
@@ -17,9 +33,9 @@ const Tab1: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonList>
-          <RepoItem name="Android" imageUrl="https://icon.icepanel.io/Technology/png-shadow-512/Android-Studio.png" description="Description 1" />
-          <RepoItem name="IOS" imageUrl="https://icon.icepanel.io/Technology/png-shadow-512/Apple.png" description="Description 2" />
-          <RepoItem name="IONIC" imageUrl="https://icon.icepanel.io/Technology/svg/Ionic.svg" description="Description 3" />
+          {repos.map((repo, index) => (
+            <RepoItem key={index} repo={repo} />
+          ))}
         </IonList>
       </IonContent>
     </IonPage>
