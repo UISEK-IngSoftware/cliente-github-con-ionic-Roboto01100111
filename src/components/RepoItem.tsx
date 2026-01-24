@@ -1,5 +1,6 @@
 import './RepoItem.css';
-import { IonItemSliding, IonItem, IonThumbnail, IonLabel, IonItemOptions, IonItemOption } from '@ionic/react';
+import { IonItemSliding, IonItem, IonThumbnail, IonLabel, IonItemOptions, IonItemOption, IonIcon } from '@ionic/react';
+import { createOutline, trashOutline } from 'ionicons/icons';
 import { RepositoryItem } from '../interfaces/RepositoryItem';
 
 interface RepoItemProps {
@@ -12,9 +13,11 @@ const RepoItem: React.FC<RepoItemProps> = ({ repo, onEdit, onDelete }) => {
   return (
     <IonItemSliding>
       <IonItem>
-        <IonThumbnail slot="start">
-          <img src={repo.imageUrl || ''} alt={repo.name} />
-        </IonThumbnail>
+        {repo.imageUrl && (
+          <IonThumbnail slot="start">
+            <img src={repo.imageUrl} alt={repo.name} />
+          </IonThumbnail>
+        )}
         <IonLabel>
           <h2>{repo.name}</h2>
           <p>{repo.description}</p>
@@ -25,10 +28,10 @@ const RepoItem: React.FC<RepoItemProps> = ({ repo, onEdit, onDelete }) => {
 
       <IonItemOptions side="end">
         <IonItemOption color="primary" onClick={() => onEdit && onEdit(repo)}>
-          Editar
+          <IonIcon slot="icon-only" icon={createOutline} />
         </IonItemOption>
         <IonItemOption color="danger" onClick={() => onDelete && onDelete(repo)}>
-          Eliminar
+          <IonIcon slot="icon-only" icon={trashOutline} />
         </IonItemOption>
       </IonItemOptions>
     </IonItemSliding>

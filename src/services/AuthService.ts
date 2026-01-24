@@ -1,24 +1,35 @@
-import { Preferences } from '@capacitor/preferences';
-
-const TOKEN_KEY = 'github_token';
-
-export const saveToken = async (token: string): Promise<void> => {
-  await Preferences.set({
-    key: TOKEN_KEY,
-    value: token,
-  });
-};
-
-export const getToken = async (): Promise<string | null> => {
-  const { value } = await Preferences.get({ key: TOKEN_KEY });
-  return value;
-};
-
-export const removeToken = async (): Promise<void> => {
-  await Preferences.remove({ key: TOKEN_KEY });
-};
-
-export const isAuthenticated = async (): Promise<boolean> => {
-  const token = await getToken();
-  return token !== null;
-};
+const TOKEN_KEY = "auth_token";
+const USERNAME_KEY = "auth_username";
+class AuthService {
+  login(username: string, token: string): boolean {
+    if (username && token) {
+      this.logout();
+      localStorage.setItem(USERNAME_KEY, username);
+      localStorage.setItem(TOKEN_KEY, token);
+      return true;
+    }
+    return false;
+  }
+  logout(): void {
+    localStorage.removeItem(USERNAME_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+  }
+  isAuthenticated(): boolean {
+    return localStorage.getItem(TOKEN_KEY) !== null && localStorage.getItem(USERNAME_KEY) !== null;
+  }
+  getToken(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
+  }
+  getUsername(): string | null {
+    return localStorage.getItem(USERNAME_KEY);
+  }
+  getAuthHeader() {
+    const token = this.getToken();
+    const username = this.getUsername();
+    if (token && username) {
+      return 'Basic ' + btoa(`${username}:${token}`);
+    }
+    return null;
+  }
+}
+export default new AuthService();

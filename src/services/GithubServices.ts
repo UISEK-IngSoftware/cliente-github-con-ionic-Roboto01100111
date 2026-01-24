@@ -1,22 +1,32 @@
 import axios from "axios";
 import { RepositoryItem } from "../interfaces/RepositoryItem";
 import { UserInfo } from "../interfaces/UserInfo";
-import { getToken } from "./AuthService";
+import AuthService from "./AuthService";
 
-const GITHUB_API_URL = import.meta.env.VITE_GITHUB_API_URL as string || "https://api.github.com";
+const GITHUB_API_URL = import.meta.env.VITE_GITHUB_API_URL;
+// const GITHUB_API_TOKEN = 'Bearer ${import.meta.env.VITE_GITHUB_API_TOKEN}';
 
-const getAuthHeaders = async () => {
-    const token = await getToken();
-    return {
-        "Authorization": `Bearer ${token}`,
-    };
-};
+const githubApi = axios.create({
+    baseURL: GITHUB_API_URL,
+});
 
+githubApi.interceptors.request.use((config) => {
+    const authHeader = AuthService.getAuthHeader();
+    if (authHeader) {
+        config.headers.Authorization = authHeader;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+/**
+ * Obtener repositorios del usuario autenticado
+ * @returns
+ */
 export const fetchRepositories = async (): Promise<RepositoryItem[]> => {
     try {
-        const headers = await getAuthHeaders();
-        const response = await axios.get(`${GITHUB_API_URL}/user/repos`, {
-            headers,
+        const response = await githubApi.get('/user/repos', {
             params: {
                 per_page: 100,
                 sort: "created",
@@ -25,57 +35,50 @@ export const fetchRepositories = async (): Promise<RepositoryItem[]> => {
             },
         });
 
-        const reposData: RepositoryItem[] = response.data.map((repo: any) => ({
+        const repositories: RepositoryItem[] = response.data.map((repo: any) => ({
             name: repo.name,
-            description: repo.description || null,
-            imageUrl: repo.owner?.avatar_url || null,
-            owner: repo.owner?.login || null,
-            language: repo.language || null,
+            owner: repo.owner ? repo.owner.login : null,
+            description: repo.description ? repo.description : null,
+            imageUrl: repo.owner ? repo.owner.avatar_url : null,
+            language: repo.language ? repo.language : null,
         }));
 
-        return reposData;
+        return repositories;
     } catch (error) {
-        console.error("Error al obtener los repositorios", error);
+        console.error("Error fetching repositories:", error);
         return [];
     }
 };
 
-export const getUserInfo = async (): Promise<UserInfo | any> => {
+/**
+ * Obtener información del usuario autenticado
+ * @returns
+ */
+export const getUserInfo = async (): Promise<UserInfo | null> => {
     try {
-        const headers = await getAuthHeaders();
-        const response = await axios.get(`${GITHUB_API_URL}/user`, {
-            headers,
-        });
+        const response = await githubApi.get('/user');
         return response.data;
     } catch (error) {
-        console.error("Error al obtener la información del usuario", error);
+        console.error("Error fetching user info:", error);
         return null;
     }
 };
 
-export const createRepository = async (repository: RepositoryItem): Promise<RepositoryItem | any> => {
+export const createRepository = async (repo: RepositoryItem): Promise<void> => {
     try {
-        const headers = await getAuthHeaders();
-        const response = await axios.post(`${GITHUB_API_URL}/user/repos`, repository, {
-            headers,
-        });
-        console.log("Repositorio creado", response.data);
-        return response.data;
+        const response = await githubApi.post('/user/repos', repo);
+        console.log("Repository creado:", response.data);
     } catch (error) {
-        console.error("Error al crear el repositorio", error);
-        return null;
+        console.error("Error creando repository:", error);
     }
 };
 
 export const updateRepository = async (owner: string, repo: string, data: RepositoryItem): Promise<RepositoryItem | any> => {
     try {
-        const headers = await getAuthHeaders();
         const payload = {
             description: data.description
         };
-        const response = await axios.patch(`${GITHUB_API_URL}/repos/${owner}/${repo}`, payload, {
-            headers,
-        });
+        const response = await githubApi.patch(`/repos/${owner}/${repo}`, payload);
         console.log("Repositorio actualizado", response.data);
         return response.data;
     } catch (error) {
@@ -86,10 +89,7 @@ export const updateRepository = async (owner: string, repo: string, data: Reposi
 
 export const deleteRepository = async (owner: string, repo: string): Promise<boolean> => {
     try {
-        const headers = await getAuthHeaders();
-        await axios.delete(`${GITHUB_API_URL}/repos/${owner}/${repo}`, {
-            headers,
-        });
+        await githubApi.delete(`/repos/${owner}/${repo}`);
         console.log("Repositorio eliminado");
         return true;
     } catch (error) {

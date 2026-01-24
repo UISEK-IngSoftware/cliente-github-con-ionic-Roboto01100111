@@ -24,7 +24,7 @@ const Tab2: React.FC = () => {
   });
 
   useEffect(() => {
-    if (isEditMode && location.state.repo) {
+    if (isEditMode && location.state?.repo) {
       setRepoFormData({
         name: location.state.repo.name,
         description: location.state.repo.description || '',
@@ -32,8 +32,17 @@ const Tab2: React.FC = () => {
         owner: location.state.repo.owner,
         language: location.state.repo.language,
       });
+    } else {
+      // Resetear formulario cuando no es modo edición
+      setRepoFormData({
+        name: '',
+        description: '',
+        imageUrl: null,
+        owner: null,
+        language: null,
+      });
     }
-  }, []);
+  }, [isEditMode, location.state]);
 
   const setRepoName = (value: string) => {
     setRepoFormData({ ...repoFormData, name: value });

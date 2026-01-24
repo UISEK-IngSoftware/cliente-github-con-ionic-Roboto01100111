@@ -28,6 +28,9 @@ const Tab1: React.FC = () => {
       const success = await deleteRepository(repo.owner!, repo.name);
       if (success) {
         setRepos(repos.filter(r => r.name !== repo.name));
+      } else {
+        // Si falla (404 = ya no existe), recargar lista para sincronizar
+        loadRepos();
       }
     }
   };

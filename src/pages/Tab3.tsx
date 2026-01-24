@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useIonViewDidEnter, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonLoading } from '@ionic/react';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCardSubtitle } from '@ionic/react';
+import { useIonViewDidEnter, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonLoading, IonButton, IonIcon } from '@ionic/react';
+import { logOutOutline } from 'ionicons/icons';
 import { UserInfo } from '../interfaces/UserInfo';
 import { getUserInfo } from '../services/GithubServices';
+import AuthService from '../services/AuthService';
 import './Tab3.css';
 
 const Tab3: React.FC = () => {
@@ -17,13 +18,20 @@ const Tab3: React.FC = () => {
   const loadUserInfo = async () => {
     setLoading(true);
     const response = await getUserInfo();
-    setUserInfo({
-      login: response.login,
-      name: response.name,
-      avatar_url: response.avatar_url,
-      bio: response.bio,
-    });
+    if (response) {
+      setUserInfo({
+        login: response.login,
+        name: response.name,
+        avatar_url: response.avatar_url,
+        bio: response.bio,
+      });
+    }
     setLoading(false);
+  };
+
+  const handleLogout = () => {
+    AuthService.logout();
+    window.location.href = '/login';
   };
 
   useIonViewDidEnter(() => {
@@ -44,15 +52,25 @@ const Tab3: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonLoading isOpen={loading} message="Cargando perfil..." />
-        <IonCard>
-          <img alt={userInfo.login} src={userInfo.avatar_url} className="img" />
-          <IonCardHeader>
-            <IonCardTitle>{userInfo.name}</IonCardTitle>
-            <IonCardSubtitle>{userInfo.login}</IonCardSubtitle>
-          </IonCardHeader>
 
-          <IonCardContent>{userInfo.bio}</IonCardContent>
-        </IonCard>
+        <div className="profile-container">
+          <div className="avatar-container">
+            <img
+              alt={userInfo.login}
+              src={userInfo.avatar_url}
+              className="avatar-img"
+            />
+          </div>
+
+          <h1 className="profile-name">{userInfo.name}</h1>
+          <p className="profile-username">{userInfo.login}</p>
+          <p className="profile-bio">Estudiante de la UISEK</p>
+
+          <IonButton color="danger" className="logout-button" onClick={handleLogout}>
+            <IonIcon slot="start" icon={logOutOutline} />
+            Cerrar sesión
+          </IonButton>
+        </div>
       </IonContent>
     </IonPage>
   );

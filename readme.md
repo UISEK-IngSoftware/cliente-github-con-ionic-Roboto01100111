@@ -5,7 +5,7 @@
 
 - **Nombre:** Guillermo Zurita
 - **Carrera:** Ingenieria en Software
-- **Fecha de inicio:** 21 de enero de 2025
+- **Fecha de inicio:** 21 de enero de 2026
 
 ---
 
