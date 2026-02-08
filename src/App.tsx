@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
@@ -14,6 +15,7 @@ import { personCircleOutline, logoGithub, addCircle } from "ionicons/icons";
 import Tab1 from "./pages/Tab1";
 import Tab2 from "./pages/Tab2";
 import Tab3 from "./pages/Tab3";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -51,9 +53,16 @@ setupIonicReact();
 
 const App: React.FC = () => {
   const isAuthenticated = AuthService.isAuthenticated();
+  const [showSpinner, setShowSpinner] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowSpinner(false), 2500);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <IonApp>
+      <LoadingSpinner isOpen={showSpinner} />
       <IonReactRouter>
         <IonRouterOutlet>
           <Route exact path="/login">

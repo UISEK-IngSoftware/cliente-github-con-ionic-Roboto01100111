@@ -65,12 +65,13 @@ export const getUserInfo = async (): Promise<UserInfo | null> => {
 };
 
 export const createRepository = async (repo: RepositoryItem): Promise<void> => {
-    try {
-        const response = await githubApi.post('/user/repos', repo);
-        console.log("Repository creado:", response.data);
-    } catch (error) {
-        console.error("Error creando repository:", error);
-    }
+    const payload = {
+        name: repo.name,
+        description: repo.description || '',
+        private: false,
+    };
+    const response = await githubApi.post('/user/repos', payload);
+    console.log("Repository creado:", response.data);
 };
 
 export const updateRepository = async (owner: string, repo: string, data: RepositoryItem): Promise<RepositoryItem | any> => {

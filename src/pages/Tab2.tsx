@@ -72,7 +72,8 @@ const Tab2: React.FC = () => {
         history.push('/tab1');
       }).catch((error: any) => {
         console.log('Error al crear el repositorio: ', error);
-        alert('Error al crear el repositorio');
+        const msg = error.response?.data?.message || error.response?.data?.errors?.[0]?.message || error.message || 'Error al crear el repositorio';
+        alert('Error al crear el repositorio: ' + msg);
       });
     }
   }
